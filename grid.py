@@ -13,3 +13,7 @@ def grid_init():
         grid.append([letters[row] + str(column) for column in range(size)])
 
 
+def grid_display():
+    print(np.matrix(grid))
+
+
