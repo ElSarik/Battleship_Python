@@ -5,9 +5,14 @@ from calculations import reverse_variables
 
 available_ships = [2, 3, 3, 4, 5]
 
+ship_tile = "██"
+fire_miss_tile = "▒▒"
+ship_hit_tile = "╬╬"
+
 
 def grid_init():
     global grid
+    global letters
 
     size = 10
 
@@ -26,8 +31,6 @@ def grid_display():
 
 
 def ship_placement(start_position, end_position):
-
-    global available_ships
 
     if ((start_position not in grid) or (end_position not in grid)):
         print("Invalid placement (start, end position)")
@@ -54,7 +57,7 @@ def ship_placement(start_position, end_position):
                     cell_code = start_position[0] + str(position_number)
                     for (grid_x, grid_y), element in np.ndenumerate(grid):
                         if element == cell_code:
-                            grid[grid_x, grid_y] = "▓▓"
+                            grid[grid_x, grid_y] = ship_tile
 
                 available_ships.remove((end_number - start_number) + 1)
 
@@ -78,11 +81,14 @@ def ship_placement(start_position, end_position):
                     cell_code = chr(position_letter) + start_position[1:]
                     for (grid_x, grid_y), element in np.ndenumerate(grid):
                         if element == cell_code:
-                            grid[grid_x, grid_y] = "▓▓"
+                            grid[grid_x, grid_y] = ship_tile
 
                 available_ships.remove((end_letter - start_letter) + 1)
 
         else:
             print("Invalid placement (diagonal placement)")
+
+    return
+
 
     return
