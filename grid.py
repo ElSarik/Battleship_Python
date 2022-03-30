@@ -91,4 +91,28 @@ def ship_placement(start_position, end_position):
     return
 
 
+def grid_fire(fired_cell):
+
+    cell_x = int(letters.index(fired_cell[0]))
+    cell_y = int(fired_cell[1:])
+
+    if (cell_x > np.size(grid, 0)) or (cell_y > np.size(grid, 1)):
+        print("Your shot was out of the board!")
+
+    else:
+        for (grid_x, grid_y), element in np.ndenumerate(grid):
+
+            if (cell_x == grid_x) and (cell_y == grid_y):
+                
+                if element == fired_cell:
+                    grid[grid_x, grid_y] = fire_miss_tile
+                    print("You missed!")
+
+                elif element == ship_tile:
+                    grid[grid_x, grid_y] = ship_hit_tile
+                    print("Ship Hit!")
+
+                else:
+                    print("Invalid cell! (You have already hit this cell)")
+
     return
