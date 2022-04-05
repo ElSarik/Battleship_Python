@@ -1,17 +1,20 @@
+import os
 import numpy as np
 import string
 
+from messages import *
+
 from calculations import reverse_variables
 
-available_ships = [2, 3, 3, 4, 5]
 
 ship_tile = "██"
 fire_miss_tile = "▒▒"
 ship_hit_tile = "╬╬"
 
+is_game_over = False
+
 
 def grid_init():
-    global grid
     global letters
 
     size = 10
@@ -25,94 +28,112 @@ def grid_init():
 
     grid = np.array(list_grid)
 
+    return(grid)
 
-def grid_display():
+
+def grid_display(grid):
     print(grid)
 
 
-def ship_placement(start_position, end_position):
+def ship_placement(grid, available_ships):
+    os.system('cls')
 
-    if ((start_position not in grid) or (end_position not in grid)):
-        print("Invalid placement (start, end position)")
+    while available_ships != []:
 
-    else:
+        print(f"{remaining_ship_sizes()}{available_ships}")
+        start_position, end_position = input(enter_ship_coordinates()).split()
 
-        # Same letters, different numbers
-        if(start_position[0] == end_position[0]):
-
-            start_number = int(start_position[1:])
-            end_number = int(end_position[1:])
-
-            if(start_number > end_number):
-
-                start_number, end_number = reverse_variables(start_number, end_number)
-
-            if ((end_number - start_number) + 1) not in available_ships:
-                print("Invalid ship length!")
-                
-
-            else:
-                # Replace cells with ship tile.
-                for position_number in range(start_number, end_number + 1):
-                    cell_code = start_position[0] + str(position_number)
-                    for (grid_x, grid_y), element in np.ndenumerate(grid):
-                        if element == cell_code:
-                            grid[grid_x, grid_y] = ship_tile
-
-                available_ships.remove((end_number - start_number) + 1)
-
-
-        # Same numbers, different letters
-        elif(start_position[1:]) == end_position[1:]:
-
-            start_letter = ord(start_position[0])
-            end_letter = ord(end_position[0])
-
-            if(start_letter > end_letter):
-                
-                start_letter, end_letter = reverse_variables(start_letter, end_letter)
-
-            if ((end_letter - start_letter) + 1) not in available_ships:
-                print("Invalid ship length!")
-                
-
-            else:
-                for position_letter in range(start_letter, end_letter + 1):
-                    cell_code = chr(position_letter) + start_position[1:]
-                    for (grid_x, grid_y), element in np.ndenumerate(grid):
-                        if element == cell_code:
-                            grid[grid_x, grid_y] = ship_tile
-
-                available_ships.remove((end_letter - start_letter) + 1)
+        if ((start_position not in grid) or (end_position not in grid)):
+            print(ship_placement_invalid())
 
         else:
-            print("Invalid placement (diagonal placement)")
 
-    return
+            # Same letters, different numbers
+            if(start_position[0] == end_position[0]):
+
+                start_number = int(start_position[1:])
+                end_number = int(end_position[1:])
+
+                if(start_number > end_number):
+
+                    start_number, end_number = reverse_variables(start_number, end_number)
+
+                if ((end_number - start_number) + 1) not in available_ships:
+                    print(ship_length_invalid())
+                    
+
+                else:
+                    # Replace cells with ship tile.
+                    for position_number in range(start_number, end_number + 1):
+                        cell_code = start_position[0] + str(position_number)
+                        for (grid_x, grid_y), element in np.ndenumerate(grid):
+                            if element == cell_code:
+                                grid[grid_x, grid_y] = ship_tile
+
+                    available_ships.remove((end_number - start_number) + 1)
+
+                    grid_display(grid)
 
 
-def grid_fire(fired_cell):
+            # Same numbers, different letters
+            elif(start_position[1:]) == end_position[1:]:
+
+                start_letter = ord(start_position[0])
+                end_letter = ord(end_position[0])
+
+                if(start_letter > end_letter):
+                    
+                    start_letter, end_letter = reverse_variables(start_letter, end_letter)
+
+                if ((end_letter - start_letter) + 1) not in available_ships:
+                    print(ship_length_invalid())
+                    
+
+                else:
+                    for position_letter in range(start_letter, end_letter + 1):
+                        cell_code = chr(position_letter) + start_position[1:]
+                        for (grid_x, grid_y), element in np.ndenumerate(grid):
+                            if element == cell_code:
+                                grid[grid_x, grid_y] = ship_tile
+
+                    available_ships.remove((end_letter - start_letter) + 1)
+
+                    grid_display(grid)
+
+            else:
+                print(ship_placement_invalid_diagonal())
+
+
+def grid_fire(fired_cell, opponent_main_grid, player_top_grid):
+
+    global is_game_over
 
     cell_x = int(letters.index(fired_cell[0]))
     cell_y = int(fired_cell[1:])
 
-    if (cell_x > np.size(grid, 0)) or (cell_y > np.size(grid, 1)):
-        print("Your shot was out of the board!")
+    if (cell_x > np.size(opponent_main_grid, 0)) or (cell_y > np.size(opponent_main_grid, 1)):
+        print(shot_out_of_board())
 
     else:
-        for (grid_x, grid_y), element in np.ndenumerate(grid):
+        for (grid_x, grid_y), element in np.ndenumerate(opponent_main_grid):
 
             if (cell_x == grid_x) and (cell_y == grid_y):
                 
                 if element == fired_cell:
-                    grid[grid_x, grid_y] = fire_miss_tile
-                    print("You missed!")
+                    opponent_main_grid[grid_x, grid_y] = fire_miss_tile
+                    player_top_grid[grid_x, grid_y] = fire_miss_tile
+                    print(shot_miss())
 
                 elif element == ship_tile:
-                    grid[grid_x, grid_y] = ship_hit_tile
-                    print("Ship Hit!")
+                    opponent_main_grid[grid_x, grid_y] = ship_hit_tile
+                    player_top_grid[grid_x, grid_y] = ship_hit_tile
+                    print(shot_hit())
+
+                    if ship_tile not in opponent_main_grid:
+                        is_game_over = True
+                        return is_game_over
 
                 else:
-                    print("Invalid cell! (You have already hit this cell)")
+                    print(ship_hit_twice())
 
     return
