@@ -4,8 +4,7 @@ from grid import grid_init, grid_display, ship_placement, grid_fire
 from messages import *
 
 
-# available_ships = [2, 3, 3, 4, 5]
-available_ships = [2]
+available_ships = [2, 3, 3, 4, 5]
 
 player1_active = True
 
