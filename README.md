@@ -12,3 +12,6 @@
 -  Single player, console based gameplay against the computer.
 -  Manual and random player ship placement.
 -  Simple computer AI that acts as your opponent.
+
+### How to use:
+- Run main.py from either an IDE or command prompt (CMD).
