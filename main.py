@@ -1,14 +1,9 @@
-from grid import grid_display, grid_init, ship_placement
+from game import *
+
 
 def main():
     
-    grid = grid_init()
-
-    ship_placement("A2", "A4")
-    # print("============")
-    ship_placement("B6", "G6")
-
-    grid_display()
+    player_vs_player()
 
 
 if __name__ == "__main__":
