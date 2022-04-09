@@ -25,6 +25,10 @@ def check_player():
 
 def player_vs_player():
 
+    clear_screen()
+
+    # By default, P1 is active
+
     p1_player_grid = grid_init()    # Bottom board of P1 (Player's ships)
     p1_opponent_grid = grid_init()  # Top board of P1 (Opponent's empty board)
     p1_available_ships = copy.deepcopy(available_ships)
@@ -33,58 +37,72 @@ def player_vs_player():
     p2_opponent_grid = grid_init()  # Top board of P2 (Opponent's empty board)
     p2_available_ships = copy.deepcopy(available_ships)
 
-    print(check_player())
-    ship_placement(p1_player_grid, p1_available_ships)
+    player = check_player()
+    ship_placement(p1_player_grid, p1_available_ships, player)  # P1 places ships
 
-    change_player()
+    change_player() # Player changes, P2 is now active
+    clear_screen()
 
-    print(check_player())
-    ship_placement(p2_player_grid, p2_available_ships)
+    player = check_player()
+    ship_placement(p2_player_grid, p2_available_ships, player)  # P2 places ships
 
-    print("================================")
-
-    change_player()
 
     is_game_over = False
+    shot_status = ""
 
     while True:
 
-        clear_screen()
-
-        grid_display(p1_opponent_grid)
-        print("==================")
-        grid_display(p1_player_grid)
-
-        shot = input(enter_shot_coordinates())
-
-        is_game_over = grid_fire(shot, p2_player_grid, p1_opponent_grid)
+        # P1 makes a move
+        shot_status, is_game_over = game_flow(shot_status, p1_player_grid, p2_player_grid, p1_opponent_grid)
 
         if is_game_over == True:
             player = check_player()
             print(game_over(player))
 
             break
-
-
-        change_player()
-
-
-        clear_screen()
-
-        grid_display(p2_opponent_grid)
-        print("==================")
-        grid_display(p2_player_grid)
-
-        shot = input(enter_shot_coordinates())
-
-        is_game_over = grid_fire(shot, p1_player_grid, p2_opponent_grid)
+        
+        # P2 makes a move
+        shot_status, is_game_over = game_flow(shot_status, p2_player_grid, p1_player_grid, p2_opponent_grid)
 
         if is_game_over == True:
             player = check_player()
             print(game_over(player))
 
             break
-
-        change_player()
-
+        
     return
+
+
+def game_flow(shot_status, player_grid, opponent_player_grid, opponent_grid):
+
+    clear_screen()
+
+    # Displaying current player's board
+    grid_display(opponent_grid)
+    print("====================================================")
+    grid_display(player_grid)
+
+    # Displaying the results of previous player's shot (active player = previous)
+    if shot_status == "Missed":
+        print("")
+        print(f"{check_player()}{shot_miss()}")
+    elif shot_status == "Hit":
+        print("")
+        print(f"{check_player()}{shot_hit()}")
+    elif shot_status == "Hit Twice":
+        print("")
+        print(ship_hit_twice())
+
+
+    change_player() # Active player changes (active player = current)
+
+
+    print("")
+    print(f"Current turn: {check_player()}")
+    shot = input(enter_shot_coordinates())
+
+    shot_status, is_game_over = grid_fire(shot, opponent_player_grid, opponent_grid)   # Current player fires
+
+    return(shot_status, is_game_over)
+
+
