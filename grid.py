@@ -36,7 +36,7 @@ def grid_display(grid):
 
 
 def ship_placement(grid, available_ships):
-    os.system('cls')
+    clear_screen()
 
     while available_ships != []:
 

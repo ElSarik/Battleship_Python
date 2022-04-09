@@ -1,3 +1,9 @@
+import os
+
+def clear_screen():
+    os.system('cls')
+
+
 def enter_ship_coordinates():
     return "Enter ship coordinates: "
 

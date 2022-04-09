@@ -49,7 +49,7 @@ def player_vs_player():
 
     while True:
 
-        os.system('cls')
+        clear_screen()
 
         grid_display(p1_opponent_grid)
         print("==================")
@@ -69,7 +69,7 @@ def player_vs_player():
         change_player()
 
 
-        os.system('cls')
+        clear_screen()
 
         grid_display(p2_opponent_grid)
         print("==================")
