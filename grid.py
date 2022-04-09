@@ -11,7 +11,6 @@ ship_tile = "██"
 fire_miss_tile = "▒▒"
 ship_hit_tile = "╬╬"
 
-is_game_over = False
 
 
 def grid_init():
@@ -35,11 +34,13 @@ def grid_display(grid):
     print(grid)
 
 
-def ship_placement(grid, available_ships):
-    clear_screen()
+def ship_placement(grid, available_ships, player):
 
     while available_ships != []:
-
+        
+        grid_display(grid)
+        print("")
+        print(f"{player} place your ships!")
         print(f"{remaining_ship_sizes()}{available_ships}")
         start_position, end_position = input(enter_ship_coordinates()).split()
 
@@ -60,7 +61,7 @@ def ship_placement(grid, available_ships):
 
                 if ((end_number - start_number) + 1) not in available_ships:
                     print(ship_length_invalid())
-                    
+                    print("")
 
                 else:
                     # Replace cells with ship tile.
@@ -72,7 +73,8 @@ def ship_placement(grid, available_ships):
 
                     available_ships.remove((end_number - start_number) + 1)
 
-                    grid_display(grid)
+                    clear_screen()
+                    
 
 
             # Same numbers, different letters
@@ -87,7 +89,7 @@ def ship_placement(grid, available_ships):
 
                 if ((end_letter - start_letter) + 1) not in available_ships:
                     print(ship_length_invalid())
-                    
+                    print("")
 
                 else:
                     for position_letter in range(start_letter, end_letter + 1):
@@ -98,15 +100,18 @@ def ship_placement(grid, available_ships):
 
                     available_ships.remove((end_letter - start_letter) + 1)
 
-                    grid_display(grid)
+                    clear_screen()
+
 
             else:
                 print(ship_placement_invalid_diagonal())
+                print("")
 
 
 def grid_fire(fired_cell, opponent_main_grid, player_top_grid):
 
-    global is_game_over
+    is_game_over = False
+    shot_status = ""
 
     cell_x = int(letters.index(fired_cell[0]))
     cell_y = int(fired_cell[1:])
@@ -122,18 +127,19 @@ def grid_fire(fired_cell, opponent_main_grid, player_top_grid):
                 if element == fired_cell:
                     opponent_main_grid[grid_x, grid_y] = fire_miss_tile
                     player_top_grid[grid_x, grid_y] = fire_miss_tile
-                    print(shot_miss())
+
+                    shot_status = "Missed"
 
                 elif element == ship_tile:
                     opponent_main_grid[grid_x, grid_y] = ship_hit_tile
                     player_top_grid[grid_x, grid_y] = ship_hit_tile
-                    print(shot_hit())
+
+                    shot_status = "Hit"
 
                     if ship_tile not in opponent_main_grid:
                         is_game_over = True
-                        return is_game_over
 
                 else:
-                    print(ship_hit_twice())
+                    shot_status = "Hit Twice"
 
-    return
+    return shot_status, is_game_over
