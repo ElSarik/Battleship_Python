@@ -1,3 +1,9 @@
+import os
+
+def clear_screen():
+    os.system('cls')
+
+
 def enter_ship_coordinates():
     return "Enter ship coordinates: "
 
@@ -27,10 +33,10 @@ def shot_out_of_board():
     return "Your shot was out of the board!"
 
 def shot_miss():
-    return "You missed!"
+    return " missed!"
 
 def shot_hit():
-    return "Ship Hit!"
+    return " hit a ship!"
 
 
 def game_over(player):
