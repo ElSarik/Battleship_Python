@@ -4,21 +4,13 @@ import string
 
 from messages import *
 
-from calculations import reverse_variables
-
-
-ship_tile = "██"
-fire_miss_tile = "▒▒"
-ship_hit_tile = "╬╬"
-
+from calculations import reverse_variables, cell_to_coordinates
 
 
 def grid_init():
-    global letters
 
     size = 10
 
-    letters = list(string.ascii_uppercase)
     list_grid = []
     
 
@@ -37,6 +29,8 @@ def grid_display(grid):
 def ship_placement(grid, available_ships, player):
 
     while available_ships != []:
+
+        cells = []
         
         grid_display(grid)
         print("")
@@ -45,6 +39,7 @@ def ship_placement(grid, available_ships, player):
         start_position, end_position = input(enter_ship_coordinates()).split()
 
         if ((start_position not in grid) or (end_position not in grid)):
+            clear_screen()
             print(ship_placement_invalid())
 
         else:
@@ -67,11 +62,21 @@ def ship_placement(grid, available_ships, player):
                     # Replace cells with ship tile.
                     for position_number in range(start_number, end_number + 1):
                         cell_code = start_position[0] + str(position_number)
-                        for (grid_x, grid_y), element in np.ndenumerate(grid):
-                            if element == cell_code:
-                                grid[grid_x, grid_y] = ship_tile
+                        cells.append(cell_code)
+                        
+                    # Check if ship is already placed in the selected tiles.
+                    ship_placed = False
+                    for cell in cells:
+                        cell_row, cell_column = cell_to_coordinates(cell)
+                        if grid[cell_row, cell_column] == ship_tile:
+                            ship_placed = True
+                            
+                    if ship_placed == False:
+                        for cell in cells:
+                            cell_row, cell_column = cell_to_coordinates(cell)
+                            grid[cell_row, cell_column] = ship_tile
 
-                    available_ships.remove((end_number - start_number) + 1)
+                        available_ships.remove((end_number - start_number) + 1)
 
                     clear_screen()
                     
@@ -92,20 +97,105 @@ def ship_placement(grid, available_ships, player):
                     print("")
 
                 else:
+                    # Replace cells with ship tile.
                     for position_letter in range(start_letter, end_letter + 1):
                         cell_code = chr(position_letter) + start_position[1:]
-                        for (grid_x, grid_y), element in np.ndenumerate(grid):
-                            if element == cell_code:
-                                grid[grid_x, grid_y] = ship_tile
+                        cells.append(cell_code)
+                    
+                    # Check if ship is already placed in the selected tiles.
+                    ship_placed = False
+                    for cell in cells:
+                        cell_row, cell_column = cell_to_coordinates(cell)
+                        if grid[cell_row, cell_column] == ship_tile:
+                            ship_placed = True
+                            
+                    if ship_placed == False:
+                        for cell in cells:
+                            cell_row, cell_column = cell_to_coordinates(cell)
+                            grid[cell_row, cell_column] = ship_tile
 
-                    available_ships.remove((end_letter - start_letter) + 1)
+                        available_ships.remove((end_letter - start_letter) + 1)
 
                     clear_screen()
 
 
             else:
+                clear_screen()
                 print(ship_placement_invalid_diagonal())
                 print("")
+
+
+def AI_ship_placement(grid, start_position, end_position):
+
+    if ((start_position not in grid) or (end_position not in grid)):
+            return "Invalid placement"
+
+    else:
+
+        cells = []
+        
+        # Same letters, different numbers
+        if(start_position[0] == end_position[0]):
+
+            start_number = int(start_position[1:])
+            end_number = int(end_position[1:])
+
+            if(start_number > end_number):
+
+                start_number, end_number = reverse_variables(start_number, end_number)
+
+            # Replace cells with ship tile.
+            for position_number in range(start_number, end_number + 1):
+                cell_code = start_position[0] + str(position_number)
+                cells.append(cell_code)
+                        
+            # Check if ship is already placed in the selected tiles.
+            ship_placed = False
+            for cell in cells:
+                cell_row, cell_column = cell_to_coordinates(cell)
+                if grid[cell_row, cell_column] == ship_tile:
+                    ship_placed = True
+                    return "Invalid placement"
+                            
+            if ship_placed == False:
+                for cell in cells:
+                    cell_row, cell_column = cell_to_coordinates(cell)
+                    grid[cell_row, cell_column] = ship_tile
+                    
+
+        # Same numbers, different letters
+        elif(start_position[1:]) == end_position[1:]:
+
+            start_letter = ord(start_position[0])
+            end_letter = ord(end_position[0])
+
+            if(start_letter > end_letter):
+                    
+                start_letter, end_letter = reverse_variables(start_letter, end_letter)
+
+            # Replace cells with ship tile.
+            for position_letter in range(start_letter, end_letter + 1):
+                cell_code = chr(position_letter) + start_position[1:]
+                cells.append(cell_code)
+                    
+            # Check if ship is already placed in the selected tiles.
+            ship_placed = False
+            for cell in cells:
+                cell_row, cell_column = cell_to_coordinates(cell)
+                if grid[cell_row, cell_column] == ship_tile:
+                    ship_placed = True
+                    return "Invalid placement"
+                            
+            if ship_placed == False:
+                for cell in cells:
+                    cell_row, cell_column = cell_to_coordinates(cell)
+                    grid[cell_row, cell_column] = ship_tile
+
+
+        else:
+            return "Invalid placement"
+            
+    return
 
 
 def grid_fire(fired_cell, opponent_main_grid, player_top_grid):
@@ -113,26 +203,25 @@ def grid_fire(fired_cell, opponent_main_grid, player_top_grid):
     is_game_over = False
     shot_status = ""
 
-    cell_x = int(letters.index(fired_cell[0]))
-    cell_y = int(fired_cell[1:])
+    cell_row, cell_column = cell_to_coordinates(fired_cell)
 
-    if (cell_x > np.size(opponent_main_grid, 0)) or (cell_y > np.size(opponent_main_grid, 1)):
+    if (cell_row > np.size(opponent_main_grid, 0)) or (cell_column > np.size(opponent_main_grid, 1)):
         print(shot_out_of_board())
 
     else:
-        for (grid_x, grid_y), element in np.ndenumerate(opponent_main_grid):
+        for (grid_row, grid_column), element in np.ndenumerate(opponent_main_grid):
 
-            if (cell_x == grid_x) and (cell_y == grid_y):
+            if (cell_row == grid_row) and (cell_column == grid_column):
                 
                 if element == fired_cell:
-                    opponent_main_grid[grid_x, grid_y] = fire_miss_tile
-                    player_top_grid[grid_x, grid_y] = fire_miss_tile
+                    opponent_main_grid[grid_row, grid_column] = fire_miss_tile
+                    player_top_grid[grid_row, grid_column] = fire_miss_tile
 
                     shot_status = "Missed"
 
                 elif element == ship_tile:
-                    opponent_main_grid[grid_x, grid_y] = ship_hit_tile
-                    player_top_grid[grid_x, grid_y] = ship_hit_tile
+                    opponent_main_grid[grid_row, grid_column] = ship_hit_tile
+                    player_top_grid[grid_row, grid_column] = ship_hit_tile
 
                     shot_status = "Hit"
 

@@ -1,4 +1,12 @@
 import os
+import string
+
+ship_tile = "██"
+fire_miss_tile = "▒▒"
+ship_hit_tile = "╬╬"
+
+letters = list(string.ascii_uppercase)
+
 
 def clear_screen():
     os.system('cls')
