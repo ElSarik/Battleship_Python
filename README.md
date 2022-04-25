@@ -13,5 +13,8 @@
 -  Manual and random player ship placement.
 -  Simple computer AI that acts as your opponent.
 
+### Requirements:
+- numpy
+
 ### How to use:
 - Run main.py from either an IDE or command prompt (CMD).
