@@ -110,16 +110,16 @@ def game_flow(shot_status, player_grid, opponent_player_grid, opponent_grid):
 
 def player_vs_ai():
 
-    grid = grid_init()
+    ai_grid = grid_init()
 
     ships = copy.deepcopy(available_ships)
     directions = ["up", "down", "left", "right"]
 
     while ships != []:
 
-        cell = (random.choice(random.choice(grid)))
+        cell = (random.choice(random.choice(ai_grid)))
         cell_directions = copy.deepcopy(directions)
-        cell_directions = available_directions(cell_directions, grid, cell)
+        cell_directions = available_directions(cell_directions, ai_grid, cell)
 
         if cell_directions == []:
             continue
@@ -127,16 +127,15 @@ def player_vs_ai():
         selected_direction = random.choice(cell_directions)
         selected_ship = random.choice(ships)
             
-        end_cell = AI_placement_calculation(grid, cell, selected_direction, selected_ship)
+        end_cell = AI_placement_calculation(ai_grid, cell, selected_direction, selected_ship)
 
-        error = AI_ship_placement(grid, cell, end_cell)
+        error = AI_ship_placement(ai_grid, cell, end_cell)
 
         if end_cell == "Invalid placement" or error == "Invalid placement":
             continue
         
-        print(cell, end_cell, selected_ship)
         ships.remove(selected_ship)
 
-    grid_display(grid)
+    grid_display(ai_grid)
 
     return
